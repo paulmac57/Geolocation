@@ -1,7 +1,7 @@
 # GEOLOCATION
 
 To Run: Python aswindow.py <br />
-creates a HTMl file (<asnumber>.html) in ases folder which must be copied to webserver to display map. <br />
+creates a HTMl file (asnumber.html) in ases folder which must be copied to webserver to display map. <br />
 <br />
 uses asn.py <br />
 AS Class API <br />

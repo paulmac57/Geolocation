@@ -5,6 +5,7 @@ import ipinfo
 import pprint
 import os
 import json
+import time
 
 class As:
     def __init__(self, asnumber,test):
@@ -50,7 +51,9 @@ class As:
     def substring_after(self,s, delim):
         return s.partition(delim)[2]
     def substring_before(self,s, delim):
-        return s.partition(delim)[2]
+        return s.partition(delim)[1]
+    def find_2nd(self,string, substring):
+        return string.partition(substring, string.partition(substring) + 1)
 
     def get_company_info(self):
        
@@ -63,8 +66,14 @@ class As:
         owner    = self.substring_after(info,'owner:').split('\n')[0].strip()
         ownerid  = self.substring_after(info,'ownerid:').split('\n')[0].strip()
         responsible = self.substring_after(info,'responsible:').split('\n')[0].strip()
+        person   = self.substring_after(info,'person:').split('\n')[0].strip()
+        address = info.partition("address:")[2].partition("address:")[2].split('\n')[0].strip()
         address1 = self.substring_after(info,'address1:').split('\n')[0].strip()
         address2 = self.substring_after(info,'address2:').split('\n')[0].strip()
+        if address1 == "":
+            address1 = info.partition("address:")[2].split('\n')[0].strip()
+            address2 = info.partition("address:")[2].partition("address:")[2].split('\n')[0].strip()
+            
         country  = self.substring_after(info,'country:').split('\n')[0].strip()
         phone    = self.substring_after(info,'phone:').split('\n')[0].strip()
         created  = self.substring_after(info,'created:').split('\n')[0].strip()
@@ -208,7 +217,7 @@ class As:
         pass
 if __name__ == "__main__":
     os.chdir('/home/paul/Documents/geolocation')
-    ASN = 52697
+    ASN = 17910
     result = {}
     thisas = As(ASN,False)
     print (thisas.get_company_info())

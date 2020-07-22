@@ -152,18 +152,39 @@ class show_as_info(framework.Framework):
             location = None
             address = ""
             print(ascompany)
+
+
             
             if ascompany['lat'] != None:
                 latitude = ascompany['lat']
                 longitude = ascompany['lon']
             else:
-                if str(ascompany['address1']) != "":
-                    address = str(ascompany['address1'])+" "+str(ascompany['address2'])+" "+str(ascompany['country'])
-                    location = geolocator.geocode(address)
+                address = str(ascompany['address2'])+" "+str(ascompany['country'])
+                location = geolocator.geocode(address)
+                print(address)
+                print(location)
+
                 if location == None:
-                    if str(ascompany['owner']) != "":
-                        address = str(ascompany['owner'])  
-                        location = geolocator.geocode(address) 
+                    address = str(ascompany['address2'])
+                    location = geolocator.geocode(address)
+                    print(address)
+                    print(location)
+                if location == None:
+                    address = str(ascompany['address1'])+" "+str(ascompany['country'])
+                    location = geolocator.geocode(address)
+                    print(address)
+                    print(location)
+        
+                if location == None:
+                    address = str(ascompany['address1'])+str(ascompany['address2'])+" "+str(ascompany['country'])
+                    location = geolocator.geocode(address)
+                    print(address)
+                    print(location)
+                if location == None:
+                    address= str(ascompany['owner'])+" "+str(ascompany['country']) 
+                    location = geolocator.geocode(address)
+                    print(address)
+                    print(location)
                 if location == None:
                     raise TypeError
                 latitude = location.latitude
@@ -179,14 +200,11 @@ class show_as_info(framework.Framework):
         filename = 'ases/as'+str(asnumber)+'.html'
         cmd2 = 'chmod ' +'766 '+filename
         cmd = 'cp html/head.html '+ filename
-        
-        
+                
         os.system(cmd)
+        # Fix File Permisssions
         os.system(cmd2)
-        
-       
-        
-        
+               
         # Write latitude and longitude to html file for zoom location
         # open file 
         ip = open(filename, 'a')

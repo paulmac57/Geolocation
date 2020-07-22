@@ -1,5 +1,8 @@
 # GEOLOCATION
 
+uses Nominatum to locate physical addresses
+use ipinfo.io to locate Ip addresses
+
 To Run: Python aswindow.py <br />
 creates a HTMl file (asnumber.html) in ases folder which must be copied to webserver to display map. <br />
 <br />

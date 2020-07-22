@@ -74,25 +74,31 @@ class As:
         #TODO work with more than 1 inetnum
         
         # build ip address to be sent to geolocator
-        l = len(inetnum.split('/')[0].split('.'))
-        print ("LENGTH is ",l)
-        i1 = inetnum.split('/')[0].split('.')[0]
-        i2 = inetnum.split('/')[0].split('.')[1]
-        
-        if l == 2:
-            i3 = '0' 
-            i4 = '0'
-        if l == 3:
-            i3 = inetnum.split('/')[0].split('.')[2]
-            i4 = '0'
-        if l == 4: 
-            i3 = inetnum.split('/')[0].split('.')[2]
-            i4 = inetnum.split('/')[0].split('.')[3]
-        inetnum = i1+'.'+i2+'.'+i3+'.'+i4
-        print ("INETNUM IS ", inetnum)
-        coord = self.handler.getDetails(inetnum)
-        lat = coord.latitude
-        lon = coord.longitude
+
+        if inetnum != "":
+            l = len(inetnum.split('/')[0].split('.'))
+            print ("Inetnum ",inetnum)
+            print ("LENGTH is ",l)
+            i1 = inetnum.split('/')[0].split('.')[0]
+            i2 = inetnum.split('/')[0].split('.')[1]
+            
+            if l == 2:
+                i3 = '0' 
+                i4 = '0'
+            if l == 3:
+                i3 = inetnum.split('/')[0].split('.')[2]
+                i4 = '0'
+            if l == 4: 
+                i3 = inetnum.split('/')[0].split('.')[2]
+                i4 = inetnum.split('/')[0].split('.')[3]
+            inetnum = i1+'.'+i2+'.'+i3+'.'+i4
+            print ("INETNUM IS ", inetnum)
+            coord = self.handler.getDetails(inetnum)
+            lat = coord.latitude
+            lon = coord.longitude
+        else:
+            lat = None
+            lon = None
 
         
 

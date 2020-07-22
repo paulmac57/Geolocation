@@ -146,33 +146,35 @@ class show_as_info(framework.Framework):
         thisas = As(asnumber,self.var1.get())
 
         # get AS company info
-        #try:
-        geolocator = Nominatim(user_agent="aswindow")
-        ascompany = thisas.get_company_info()
-        print(ascompany)
-        
-        if ascompany['lat'] != None:
-            latitude = ascompany['lat']
-            longitude = ascompany['lon']
-        else:
-            address = str(ascompany['address1'])+" "+str(ascompany['country'])    
-            location = geolocator.geocode(address)
-            if location == None:
-                address = str(ascompany['address2'])+" "+str(ascompany['country'])
+        try:
+            geolocator = Nominatim(user_agent="aswindow")
+            ascompany = thisas.get_company_info()
+            print(ascompany)
+            
+            if ascompany['lat'] != None:
+                latitude = ascompany['lat']
+                longitude = ascompany['lon']
+            else:
+                address = str(ascompany['address1'])+" "+str(ascompany['country'])    
                 location = geolocator.geocode(address)
-            if location == None:
-                address = str(ascompany['address1'])+" "+str(ascompany['address2'])+" "+str(ascompany['country'])
-                location = geolocator.geocode(address)
-            if location == None:
-                address = str(ascompany['owner'])  
-                location = geolocator.geocode(address) 
-            if location == None:
-                raise TypeError
-            latitude = location.latitude
-            longitude = location.longitude
-    #except TypeError:
-            #print ("I can't find that As"+asnumber+" address and cordinates")
-            #sys.exit(1)  
+                print("ADDRESS is ",address," LOCATION is ", location)
+                time.sleep(10)
+                if location == None:
+                    address = str(ascompany['address2'])+" "+str(ascompany['country'])
+                    location = geolocator.geocode(address)
+                if location == None:
+                    address = str(ascompany['address1'])+" "+str(ascompany['address2'])+" "+str(ascompany['country'])
+                    location = geolocator.geocode(address)
+                if location == None:
+                    address = str(ascompany['owner'])  
+                    location = geolocator.geocode(address) 
+                if location == None:
+                    raise TypeError
+                latitude = location.latitude
+                longitude = location.longitude
+        except TypeError:
+            print ("I can't find that As"+asnumber+" address and cordinates")
+            sys.exit(1)  
 
         print(latitude, longitude)
 
@@ -181,9 +183,9 @@ class show_as_info(framework.Framework):
         cmd2 = 'chmod ' +'766 '+filename
         cmd = 'cp html/head.html '+ filename
         
-        os.system(cmd2)
+        
         os.system(cmd)
-
+        os.system(cmd2)
         
        
         
@@ -275,6 +277,9 @@ class show_as_info(framework.Framework):
         #lat_list = result.items()
         #print ("LAT_LIST ", lat_list)
 
+        
+        # Sort Ip addresses via Latitude to tidy up area of operation
+
         sorted_lat_list = collections.OrderedDict(sorted(result.items()))
         
         # create polygon area of operation
@@ -365,6 +370,7 @@ class show_as_info(framework.Framework):
         print("\nupstream ")
         pprint.pprint(as_up)
         '''
+        print (filename+ " Written Succesfully, copy it to your webserver")
         self.e1.delete(0, tk.END)
     
 

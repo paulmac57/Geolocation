@@ -149,25 +149,21 @@ class show_as_info(framework.Framework):
         try:
             geolocator = Nominatim(user_agent="aswindow")
             ascompany = thisas.get_company_info()
+            location = None
+            address = ""
             print(ascompany)
             
             if ascompany['lat'] != None:
                 latitude = ascompany['lat']
                 longitude = ascompany['lon']
             else:
-                address = str(ascompany['address1'])+" "+str(ascompany['country'])    
-                location = geolocator.geocode(address)
-                print("ADDRESS is ",address," LOCATION is ", location)
-                time.sleep(10)
-                if location == None:
-                    address = str(ascompany['address2'])+" "+str(ascompany['country'])
-                    location = geolocator.geocode(address)
-                if location == None:
+                if str(ascompany['address1']) != "":
                     address = str(ascompany['address1'])+" "+str(ascompany['address2'])+" "+str(ascompany['country'])
                     location = geolocator.geocode(address)
                 if location == None:
-                    address = str(ascompany['owner'])  
-                    location = geolocator.geocode(address) 
+                    if str(ascompany['owner']) != "":
+                        address = str(ascompany['owner'])  
+                        location = geolocator.geocode(address) 
                 if location == None:
                     raise TypeError
                 latitude = location.latitude
@@ -177,6 +173,7 @@ class show_as_info(framework.Framework):
             sys.exit(1)  
 
         print(latitude, longitude)
+        print ("Location is ", location, "Address is ", address)
 
         # write default head info to new file
         filename = 'ases/as'+str(asnumber)+'.html'

@@ -33,7 +33,7 @@
     <script>
       // initialize Leaflet
 
-      var map = L.map('mapid').setView([10.488, -66.8792], 7);
+      var map = L.map('mapid').setView([39.6053, -104.892359], 7);
       L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
       maxZoom: 18,
@@ -49,7 +49,7 @@
 
       // show AS on the map
 
-      var circle = L.circle([10.488, -66.8792], { 
+      var circle = L.circle([39.6053, -104.892359], { 
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5,
@@ -57,29 +57,43 @@
         }).addTo(map);
       // show the area of operation of the AS on the map
       var polygon = L.polygon([
-        [7.7669,-72.225],
-        [7.8878,-67.4724],
-        [8.1292,-63.5409],
-        [8.3512,-62.641],
-        [8.5897,-71.1561],
-        [8.6226,-70.2075],
-        [9.5814,-69.2385],
-        [9.6612,-68.5827],
-        [9.7457,-63.1832],
-        [10.0647,-69.357],
-        [10.1363,-64.6862],
-        [10.162,-68.0076],
-        [10.2354,-67.5911],
-        [10.256,-68.0165],
-        [10.3991,-71.4521],
-        [10.488,-66.8792],
-        [10.6652,-63.2539],
-        [10.6666,-71.6124],
-        [11.4045,-69.6734],
-        [25.7743,-80.1937],
+        [-23.5475,-46.6361],
+        [-33.8678,151.2073],
+        [1.2897,103.8501],
+        [22.2783,114.1747],
+        [26.3799,-80.0975],
+        [29.7404,-95.5589],
+        [32.7831,-96.8067],
+        [32.7939,-96.8319],
+        [33.9192,-118.4165],
+        [34.0194,-118.4912],
+        [34.0522,-118.2437],
+        [35.5491,139.7456],
+        [35.6500,139.7500],
+        [35.6655,139.6705],
+        [35.6895,139.6917],
+        [37.3394,-121.8950],
+        [37.7864,-122.3892],
+        [38.9144,-77.0740],
+        [38.9814,-77.4723],
+        [39.0437,-77.4875],
+        [39.2051,-76.8322],
+        [39.6123,-104.8799],
+        [40.7834,-73.9663],
+        [41.8500,-87.6500],
+        [42.2794,-83.7840],
+        [42.3584,-71.0598],
+        [42.3620,-71.0830],
+        [47.6062,-122.3321],
+        [47.6174,-122.1426],
+        [48.3043,16.3614],
+        [48.8534,2.3488],
+        [50.1137,8.7119],
+        [51.5085,-0.1257],
+        [52.3740,4.8897],
         ]).addTo(map);
-      polygon.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />Area of Operation");
-      circle.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela ").openPopup();
+      polygon.bindPopup("<b>AS2914</b><br />NTT-COMMUNICATIONS-2914<br />Area of Operation");
+      circle.bindPopup("<b>AS2914</b><br />NTT-COMMUNICATIONS-2914 ").openPopup();
 
     </script>
   </body>

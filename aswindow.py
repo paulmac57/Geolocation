@@ -155,7 +155,7 @@ class show_as_info(framework.Framework):
 
 
             
-            if ascompany['lat'] != None:
+            if ascompany['lat'] != 0:
                 latitude = ascompany['lat']
                 longitude = ascompany['lon']
             else:
@@ -227,17 +227,17 @@ class show_as_info(framework.Framework):
         result = {}
         ipinfo =thisas.get_ipinfo()
 
-        # below was to create a file for test purposes (no longer needed)
-        #filename = 'ases/'+'AS8048_ipinfo'+'.txt'
-        #ipdata= open(filename, 'w')
+        # below was to create a file for test purposes 
+        #pre_filename = 'ases/presorted_'+'AS' +asnumber+'_ipinfo'+'.json'
+        #ipdata= open(pre_filename, 'w')
         #ipdata.write(str(ipinfo))
 
 
         # reorganise ip addressses via latitudes so as not to duplicate points
 
         for ipaddress,values in ipinfo.items():
-            print (values)
-            print ("LAT is "+values['lat']) 
+            #print (values)
+            #print ("LAT is "+str(values['lat']) )
                         
             # create a point for the ipaddress
             if values['lat'] not in result:
@@ -248,7 +248,7 @@ class show_as_info(framework.Framework):
                 result[values['lat']][ipaddress]['lon']     = values['lon']
                 result[values['lat']][ipaddress]['popup']   = ipaddress +"  "+ values['company']
                 #print ('popup is ', result[values['lat']][ipaddress]['popup'] )
-            # if an ipadress already exists at that location just add it to list, dont create another point 
+            # if an ipadress already exists at that location just add it to the lat list, dont create another point 
             else:  
                 result[values['lat']][ipaddress]            = {}
                 #result[values['lat']][ipaddress]           = ipaddress
@@ -258,11 +258,13 @@ class show_as_info(framework.Framework):
                 result[values['lat']][ipaddress]['popup'] = ipaddress +"  "+ values['company']
        
                 #print ('popup is ',result[values['lat']][ipaddress]['popup']) 
-                
+              
             # TODO: ensure if values['lon'] != result[values['lat']]['lon']
+        #print("RESULT IS ",result)
+        # Create the popup values (not currently working)
         for lati,values in result.items():
-            print(lati)
-            print (values)
+            #print(lati)
+            #print (values)
             tmpstring= ""
             lat_popup = {}
             for ipaddr, cmpinfo in values.items():
@@ -272,10 +274,7 @@ class show_as_info(framework.Framework):
             lat_popup[lati] = tmpstring
             print ('LAT POPUP is ',lat_popup[lati])
         #pprint.pprint(result)
-        # create a test file (no longer needed now that it is permanently created)
-        # filename = 'ases/'+'AS8048_lats'+'.txt'
-        # aslats= open(filename, 'w')
-        # aslats.write(str(result))
+        
 
         # create ipaddress points on map in green circles
         # also create popups
@@ -292,18 +291,45 @@ class show_as_info(framework.Framework):
         #lat_list = result.items()
         #print ("LAT_LIST ", lat_list)
 
-        
-        # Sort Ip addresses via Latitude to tidy up area of operation
+        # Test Purposes file creation
+        #postlat_filename = 'ases/postlat_'+'AS' +asnumber+'_ipinfo'+'.json'
+        #ipdata= open(postlat_filename, 'w')
+        #ipdata.write(str(result))
 
-        sorted_lat_list = collections.OrderedDict(sorted(result.items()))
+        # Sort Ip addresses via Latitude to tidy up area of operation
+        
+ 
+        s = sorted(result.items())
+        # Negative strings are not orderd correctly so need to fix
+        
+              
+        #print (s)
+        sorted_ipinfo = collections.OrderedDict(s)
+        #print (sorted_ipinfo)
+
+        # Test Purposes file creation
+        #post_filename = 'ases/postsorted_'+'AS' +asnumber+'_ipinfo'+'.json'
+        #ipdata= open(post_filename, 'w')
+        #ipdata.write(str(sorted_ipinfo))
+
         
         # create polygon area of operation
-        # TODO: this needs improvement.
-        for lat, values in sorted_lat_list.items():
+        # TODO: Popup condesned info is not in use at the moment
+        popup = {}
+        
+        for lat, values in sorted_ipinfo.items():
+            popup[lat] = ""
             for ipaddress, info in values.items():
-                print ("LAT IS ",lat, "VALUES IS ",values)
-            ip.write(spacer1+lat+ ','+info['lon']+spacer2)
-
+                #print ("LAT IS ",lat, "VALUES IS ",values)
+                
+                #print (info['popup'])
+                popup[lat] = popup[lat]+info['popup']+"<br />"
+                #print (popup[lat])
+                
+                
+            ip.write(spacer1+str(lat)+ ','+str(info['lon'])+spacer2)
+            #print ("POPUP for ",lat," is ",popup[lat])
+        
         # add polygon ending   
         ip.write(string3)
 

@@ -31,16 +31,19 @@ class As:
             output.write(self.html_doc)
         self.soup = BeautifulSoup(self.html_doc, 'html.parser')
         
+        try:
+            # Speed of connection
+            _data =  self.soup.find_all("div", attrs={"class": "media-body mt-n1"})
+            self.speed = _data[0].h5.get_text()
+            #print ("SPEED is "+str(self.speed))
+            self.download = _data[1].h5.get_text()
+            #print ("DOWNLOAD is "+self.download)
+            self.upload = _data[2].h5.get_text()
+            #print ("UPLOAD is "+self.upload)
+        except AttributeError:
+            print (self.asn+" ... Are you sure you typed a correct AS number ?")
+            sys.exit(1)  
 
-        # Speed of connection
-        _data =  self.soup.find_all("div", attrs={"class": "media-body mt-n1"})
-        self.speed = _data[0].h5.get_text()
-        #print ("SPEED is "+str(self.speed))
-        self.download = _data[1].h5.get_text()
-        #print ("DOWNLOAD is "+self.download)
-        self.upload = _data[2].h5.get_text()
-        #print ("UPLOAD is "+self.upload)
-     
     class d():
         # used by test
         def __init__(self,ips,thedict):
@@ -68,11 +71,16 @@ class As:
         owner    = self.substring_after(info,'owner:').split('\n')[0].strip()
         if owner == "":
             owner = self.substring_after(info,'ASName:').split('\n')[0].strip()
+        if owner == "":
+            owner = self.substring_after(info,'descr:').split('\n')[0].strip()
+
+
         ownerid  = self.substring_after(info,'ownerid:').split('\n')[0].strip()
         if ownerid == "":
             ownerid = self.substring_after(info,'OrgID:').split('\n')[0].strip()
         responsible = self.substring_after(info,'responsible:').split('\n')[0].strip()
-        person   = self.substring_after(info,'person:').split('\n')[0].strip()
+        if responsible == "":
+            responsible = self.substring_after(info,'person:').split('\n')[0].strip()
         
         address1 = self.substring_after(info,'address1:').split('\n')[0].strip()
         address2 = self.substring_after(info,'address2:').split('\n')[0].strip()
@@ -125,11 +133,11 @@ class As:
             inetnum = i1+'.'+i2+'.'+i3+'.'+i4
             print ("INETNUM IS ", inetnum)
             coord = self.handler.getDetails(inetnum)
-            lat = coord.latitude
-            lon = coord.longitude
+            lat = float(coord.latitude)
+            lon = float(coord.longitude)
         else:
-            lat = None
-            lon = None
+            lat = 0
+            lon = 0
 
         
 
@@ -194,8 +202,8 @@ class As:
                 else:
                     #======== download live data=========
                     details = self.handler.getDetails(subnet)               
-                lat = details.latitude
-                lon = details.longitude
+                lat = float(details.latitude)
+                lon = float(details.longitude)
                 print ("COORDS ARE ",lat,lon)
 
                 prefix_details[ips] = {}
@@ -239,11 +247,11 @@ class As:
         pass
 if __name__ == "__main__":
     os.chdir('/home/paul/Documents/geolocation')
-    ASN = 2914
+    ASN = 8048
     result = {}
-    thisas = As(ASN,False)
+    thisas = As(ASN,True)
     print (thisas.get_company_info())
-    #print (thisas.get_ipinfo())
+    print (thisas.get_ipinfo())
     
     #ipinfo=thisas.get_ipinfo()
     '''

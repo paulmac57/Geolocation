@@ -6,6 +6,7 @@ import pprint
 import os
 import json
 import time
+import sys
 
 class As:
     def __init__(self, asnumber,test):
@@ -40,7 +41,7 @@ class As:
             #print ("DOWNLOAD is "+self.download)
             self.upload = _data[2].h5.get_text()
             #print ("UPLOAD is "+self.upload)
-        except AttributeError:
+        except IndexError:
             print (self.asn+" ... Are you sure you typed a correct AS number ?")
             sys.exit(1)  
 

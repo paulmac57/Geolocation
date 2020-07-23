@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-import ipinfo
+import ipinfo # uses ipinfo.io to get  ip location data and asinfo at same time
 import pprint
 import os
 import json
@@ -62,22 +62,44 @@ class As:
         #print ("COMPANY IS ",company)
         info = company.contents[3].pre.contents[0]
 
-        #testowner1 = self.substring_after(info,'owner:')
+        # TODO: it looks like different RIR's have different field names
+        # so might be worth creating templates for each one instead of using if statements.
+
         owner    = self.substring_after(info,'owner:').split('\n')[0].strip()
+        if owner == "":
+            owner = self.substring_after(info,'ASName:').split('\n')[0].strip()
         ownerid  = self.substring_after(info,'ownerid:').split('\n')[0].strip()
+        if ownerid == "":
+            ownerid = self.substring_after(info,'OrgID:').split('\n')[0].strip()
         responsible = self.substring_after(info,'responsible:').split('\n')[0].strip()
         person   = self.substring_after(info,'person:').split('\n')[0].strip()
-        address = info.partition("address:")[2].partition("address:")[2].split('\n')[0].strip()
+        
         address1 = self.substring_after(info,'address1:').split('\n')[0].strip()
         address2 = self.substring_after(info,'address2:').split('\n')[0].strip()
+        # if no address1 and address2 info then try just Street
+        if address1 == "":
+            address1 = info.partition("Street:")[2].split('\n')[0].strip()
+            address2 = info.partition("Street:")[2].partition("Street:")[2].split('\n')[0].strip()
+        if info.partition("City:")[2].split('\n')[0].strip() != "":
+                address2 = address2 + " " + info.partition("City:")[2].split('\n')[0].strip()
+        if info.partition("State\Prov:")[2].split('\n')[0].strip() != "":
+                address2 = address2 + " " + info.partition("State\Prov:")[2].split('\n')[0].strip()
+        # if still no address info the try address 
         if address1 == "":
             address1 = info.partition("address:")[2].split('\n')[0].strip()
             address2 = info.partition("address:")[2].partition("address:")[2].split('\n')[0].strip()
-            
+        
         country  = self.substring_after(info,'country:').split('\n')[0].strip()
+        if country == "":
+            country  = self.substring_after(info,'Country:').split('\n')[0].strip()
         phone    = self.substring_after(info,'phone:').split('\n')[0].strip()
         created  = self.substring_after(info,'created:').split('\n')[0].strip()
+        if created == "":
+            created  = self.substring_after(info,'RegDate:').split('\n')[0].strip()
+
         changed  = self.substring_after(info,'changed:').split('\n')[0].strip()
+        if changed == "":
+            changed  = self.substring_after(info,'Updated:').split('\n')[0].strip()
         inetnum  = self.substring_after(info,'inetnum:').split('\n')[0].strip()
        
         #TODO work with more than 1 inetnum
@@ -217,11 +239,11 @@ class As:
         pass
 if __name__ == "__main__":
     os.chdir('/home/paul/Documents/geolocation')
-    ASN = 17910
+    ASN = 2914
     result = {}
     thisas = As(ASN,False)
     print (thisas.get_company_info())
-    print (thisas.get_ipinfo())
+    #print (thisas.get_ipinfo())
     
     #ipinfo=thisas.get_ipinfo()
     '''

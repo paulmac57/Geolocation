@@ -5,7 +5,6 @@ from asn import As # my current AS Class
 import framework # simple window framework in framework.py
 import pprint
 import os
-from geopy.geocoders import Nominatim
 import time
 import collections
 import sys
@@ -146,55 +145,10 @@ class show_as_info(framework.Framework):
         thisas = As(asnumber,self.var1.get())
 
         # get AS company info
-        try:
-            geolocator = Nominatim(user_agent="aswindow")
-            ascompany = thisas.get_company_info()
-            location = None
-            address = ""
-            print(ascompany)
 
-
+        ascompany = thisas.get_company_info()
             
-            if ascompany['lat'] != 0:
-                latitude = ascompany['lat']
-                longitude = ascompany['lon']
-            else:
-                address = str(ascompany['address2'])+" "+str(ascompany['country'])
-                location = geolocator.geocode(address)
-                print(address)
-                print(location)
-
-                if location == None:
-                    address = str(ascompany['address2'])
-                    location = geolocator.geocode(address)
-                    print(address)
-                    print(location)
-                if location == None:
-                    address = str(ascompany['address1'])+" "+str(ascompany['country'])
-                    location = geolocator.geocode(address)
-                    print(address)
-                    print(location)
-        
-                if location == None:
-                    address = str(ascompany['address1'])+str(ascompany['address2'])+" "+str(ascompany['country'])
-                    location = geolocator.geocode(address)
-                    print(address)
-                    print(location)
-                if location == None:
-                    address= str(ascompany['owner'])+" "+str(ascompany['country']) 
-                    location = geolocator.geocode(address)
-                    print(address)
-                    print(location)
-                if location == None:
-                    raise TypeError
-                latitude = location.latitude
-                longitude = location.longitude
-        except TypeError:
-            print ("I can't find that As"+asnumber+" address and cordinates")
-            sys.exit(1)  
-
-        print(latitude, longitude)
-        print ("Location is ", location, "Address is ", address)
+        print(ascompany)
 
         # write default head info to new file
         filename = 'ases/as'+str(asnumber)+'.html'
@@ -208,7 +162,7 @@ class show_as_info(framework.Framework):
         # Write latitude and longitude to html file for zoom location
         # open file 
         ip = open(filename, 'a')
-        ip.write(str(latitude)+", "+str(longitude)+'], 7);\n')
+        ip.write(str(ascompany['lat'])+", "+str(ascompany['lon'])+'], 7);\n')
         ip.close()
         # TODO: work out a way of zooming to the correct distance
         
@@ -221,7 +175,7 @@ class show_as_info(framework.Framework):
         ip = open(filename, 'a')
         string1 = "var circle = L.circle(["
         string2 = "], { \n        color: 'red',\n        fillColor: '#f03',\n        fillOpacity: 0.5,\n        radius: 50000\n        }).addTo(map);\n"
-        ip.write(string1+str(latitude)+', '+str(longitude)+string2)
+        ip.write(string1+str(ascompany['lat'])+', '+str(ascompany['lon'])+string2)
         ip.close()
         # show all ip locations on map
         result = {}

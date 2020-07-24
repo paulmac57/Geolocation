@@ -7,11 +7,13 @@ import os
 import json
 import time
 import sys
+from geopy.geocoders import Nominatim
 
 class As:
     def __init__(self, asnumber,test):
         self.name = asnumber
         self.handler = ipinfo.getHandler(access_token='5887e8b74e7139')
+        self.geolocator = Nominatim(user_agent="aswindow")
         self.url_base = 'http://ipinfo.io/'
         self.as_base = 'AS'
         self.asn = self.as_base + str(self.name)
@@ -110,10 +112,12 @@ class As:
         if changed == "":
             changed  = self.substring_after(info,'Updated:').split('\n')[0].strip()
         inetnum  = self.substring_after(info,'inetnum:').split('\n')[0].strip()
-       
+        
+        
+        
         #TODO work with more than 1 inetnum
         
-        # build ip address to be sent to geolocator
+        # build inetnum ip address to be sent to ipinfo geolocator
 
         if inetnum != "":
             l = len(inetnum.split('/')[0].split('.'))
@@ -133,25 +137,65 @@ class As:
                 i4 = inetnum.split('/')[0].split('.')[3]
             inetnum = i1+'.'+i2+'.'+i3+'.'+i4
             print ("INETNUM IS ", inetnum)
-            coord = self.handler.getDetails(inetnum)
-            lat = float(coord.latitude)
-            lon = float(coord.longitude)
-        else:
-            lat = 0
-            lon = 0
-
-        
+            coord = self.handler.getDetails(inetnum) # get coords from ipinfo
+            # TODO: Note Not Currently in use
+            i1_lat = float(coord.latitude)
+            i1_lon = float(coord.longitude)
 
         #print ("INFO IS "+ info)
-        thiscompany = {'owner' : owner, 'ownerid': ownerid, 'responsible' : responsible,
+        lat = 0
+        lon = 0
+        lat,lon = self.get_coords(owner,address1,address2,country)
+
+        this_company = {'owner' : owner, 'ownerid': ownerid, 'responsible' : responsible,
                         'address1' : address1, 'address2' : address2, 'country' : country,
                         'phone' : phone, 'created' : created, 'changed' : changed, 'inetnum' : inetnum,
-                        'lat' : lat, 'lon' : lon}
+                        'lat' : lat, 'lon' : lon, 'i1_lat': i1_lat, 'i1_lon' : i1_lon }
         #print ("OWNER IS " + thiscompany["owner"])
-        #print("TESTOWNERE IS ",testowner)
-        return thiscompany
-   
+        
+        #use nominatim to find coordinates
+        
+        
+
+        return this_company
+    
+    def get_coords(self,o,a1,a2,c):
+        try:
+            location = None
+            address = ""
             
+            address = a2 + " " + c
+            location = self.geolocator.geocode(address)
+            
+            if location == None:
+                address = a2
+                location = geolocator.geocode(address)
+                
+            if location == None:
+                address = a1 + " " + c
+                location = geolocator.geocode(address)
+                
+    
+            if location == None:
+                address = a1 + " " + a2 + " " + c
+                location = geolocator.geocode(address)
+               
+            if location == None:
+                address= o+" " + c 
+                location = geolocator.geocode(address)
+                
+            if location == None:
+                raise TypeError
+            latitude = location.latitude
+            longitude = location.longitude
+        except TypeError:
+            print ("I can't find that As"+asnumber+" address and cordinates")
+            sys.exit(1)  
+
+        print(latitude, longitude)
+        print ("Location is ", location, "Address is ", address)
+        return latitude, longitude
+       
     def get_ipinfo(self):
         ip_info = {}
 

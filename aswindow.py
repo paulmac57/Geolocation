@@ -150,6 +150,8 @@ class show_as_info(framework.Framework):
             
         print(ascompany)
 
+        # Start writing the HTML FILE >>>>>
+
         # write default head info to new file
         filename = 'ases/as'+str(asnumber)+'.html'
         cmd2 = 'chmod ' +'766 '+filename
@@ -162,7 +164,7 @@ class show_as_info(framework.Framework):
         # Write latitude and longitude to html file for zoom location
         # open file 
         ip = open(filename, 'a')
-        ip.write(str(ascompany['lat'])+", "+str(ascompany['lon'])+'], 7);\n')
+        ip.write(str(ascompany['lat'])+", "+str(ascompany['lon'])+'], 6);\n')
         ip.close()
         # TODO: work out a way of zooming to the correct distance
         
@@ -219,7 +221,7 @@ class show_as_info(framework.Framework):
         for lati,values in result.items():
             #print(lati)
             #print (values)
-            tmpstring= ""
+            tmpstring = ""
             lat_popup = {}
             for ipaddr, cmpinfo in values.items():
                 tmpstring = tmpstring + cmpinfo['popup']+ "\n"
@@ -229,18 +231,22 @@ class show_as_info(framework.Framework):
             print ('LAT POPUP is ',lat_popup[lati])
         #pprint.pprint(result)
         
-
         # create ipaddress points on map in green circles
-        # also create popups
-
-        number_of_points = len(result)
+        stringa = "      var circle"
+        stringb = " = L.circle(["
         string1 = "      // show the area of operation of the AS on the map\n      var polygon = L.polygon([\n"
         string2 = "], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);"
         string3 = "        ]).addTo(map);\n"
-        ip = open(filename, 'a')
+        string4 = '      polygon.bindPopup("<b>AS'
+        string5 = '</b><br />'
+        string6 = '<br />Area of Operation");\n'
+        string7 = '      circle.bindPopup("<b>AS'
+        string7a ='      circle'
+        string7b ='.bindPopup("<b>AS'
+        string8 = ' ").openPopup();\n\n'
         spacer1 = "        ["
         spacer2 = "],\n"
-        ip.write(string1)
+        popup = {}
         
         #lat_list = result.items()
         #print ("LAT_LIST ", lat_list)
@@ -266,18 +272,38 @@ class show_as_info(framework.Framework):
         #ipdata= open(post_filename, 'w')
         #ipdata.write(str(sorted_ipinfo))
 
-        
-        # create polygon area of operation
-        # TODO: Popup condesned info is not in use at the moment
-        popup = {}
-        
+
+        ip = open(filename, 'a')
+        ip_location_id = 0
         for lat, values in sorted_ipinfo.items():
+            ip_location_id += 1
             popup[lat] = ""
             for ipaddress, info in values.items():
-                #print ("LAT IS ",lat, "VALUES IS ",values)
+                print ("LAT IS ",lat, "VALUES IS ",values)
+                #print (info['popup'])
+                #popup[lat] = popup[lat]+info['popup']+"<br />"
+                #print (popup[lat])
+
+            # Create Green IP Address location Circles   
+            ip.write(stringa + str(ip_location_id)+stringb+str(lat)+ ','+str(info['lon'])+string2+'\n')
+            # Create Green circle Popup
+            ip.write(string7a +str(ip_location_id)+string7b+asnumber + string5 + info['company']+"<br />" + ipaddress +string8)
+        
+            #print ("POPUP for ",lat," is ",popup[lat])
+
+
+        # Create area of operation
+
+        ip = open(filename, 'a')
+        ip.write(string1)
+
+        for lat, values in sorted_ipinfo.items():
+            # popup[lat] = ""
+            for ipaddress, info in values.items():
+                print ("LAT IS ",lat, "VALUES IS ",values)
                 
                 #print (info['popup'])
-                popup[lat] = popup[lat]+info['popup']+"<br />"
+                #popup[lat] = popup[lat]+info['popup']+"<br />"
                 #print (popup[lat])
                 
                 
@@ -286,85 +312,19 @@ class show_as_info(framework.Framework):
         
         # add polygon ending   
         ip.write(string3)
-
-        string4 = '      polygon.bindPopup("<b>AS'
-        string5 = '</b><br />'
-        string6 = '<br />Area of Operation");\n'
-        ip.write(string4 +asnumber+string5+ascompany['owner']+string6)
+        ip.write(string4 +asnumber+string5+ascompany['owner'])
+        if ascompany['inetnum'] != "":
+            ip.write("<br /" + ascompany['inetnum']+string6)
+        else:
+            ip.write(string6)
 
         #Create circle to denote AS
-
-        string7 = '      circle.bindPopup("<b>AS'
-        string8 = ' ").openPopup();\n\n'
         ip.write(string7 +asnumber+string5+ascompany['owner']+string8)
-
         string9 = "    </script>\n  </body>\n</html>"
-        
         ip.write (string9)
         ip.close()
-        
-        
-        
-        
 
-        
-
-
-        '''
-        for lati, values in result.items():
-            print (lati)
-            for ipadr, longi in values.items():
-                
-                print (ipadr)
-                print (longi)
-                print (longi['company'])
-                lat_popups[lati] = {}
-                lat_popups[lati][ipadr] = longi['company']
-        print(lat_popups)        
-        '''        
-
-            #ip.write(spacer1+str(lat)+', '+str(result[lat]['lon'])+spacer2)
-
-
-
-
-
-
-
-
-        '''
-        # write company info to file
-        ip.write("Companyinfo\n") 
-        ip.write(str(ascompany))
-        print("Companyinfo") 
-        pprint.pprint(ascompany)
-        ip.write("\nspeed ") 
-        ip.write(thisas.speed)
-        ip.write("\ndownload ") 
-        ip.write(thisas.download)
-        ip.write("\nupload ") 
-        ip.write(thisas.upload) 
-        print(thisas.speed,thisas.download,thisas.upload)  
-        as_ipinfo=thisas.get_ipinfo()
-        ip.write("\nipinfo \n")
-        ip.write(str(as_ipinfo))
-        print("ipinfo ")
-        pprint.pprint(as_ipinfo) 
-
-    
-        as_down = thisas.get_downstream()
-        as_up = thisas.get_upstream()
-        
-        ip.write("\ndownstream ")
-        ip.write(str(as_down))
-        ip.write("\nupstream ")
-        ip.write(str(as_up))
-        
-        print("\ndownstream ")
-        pprint.pprint(as_down)
-        print("\nupstream ")
-        pprint.pprint(as_up)
-        '''
+ 
         print (filename+ " Written Succesfully, copy it to your webserver")
         self.e1.delete(0, tk.END)
     

@@ -121,8 +121,8 @@ class As:
 
         if inetnum != "":
             l = len(inetnum.split('/')[0].split('.'))
-            print ("Inetnum ",inetnum)
-            print ("LENGTH is ",l)
+            #print ("Inetnum ",inetnum)
+            #print ("LENGTH is ",l)
             i1 = inetnum.split('/')[0].split('.')[0]
             i2 = inetnum.split('/')[0].split('.')[1]
             
@@ -136,24 +136,32 @@ class As:
                 i3 = inetnum.split('/')[0].split('.')[2]
                 i4 = inetnum.split('/')[0].split('.')[3]
             inetnum = i1+'.'+i2+'.'+i3+'.'+i4
-            print ("INETNUM IS ", inetnum)
+            #print ("INETNUM IS ", inetnum)
             coord = self.handler.getDetails(inetnum) # get coords from ipinfo
             # TODO: Note Not Currently in use
+            i1_lat = 0.00
             i1_lat = float(coord.latitude)
             i1_lon = float(coord.longitude)
+            
 
         #print ("INFO IS "+ info)
-        lat = 0
-        lon = 0
-        lat,lon = self.get_coords(owner,address1,address2,country)
+        lat = i1_lat
+        lon = i1_lon
 
+        
+        
+        #if ipinfo didnt fine location then use nominatim to find company lat and lon coordinates
+        if lat == 0.00:
+            lat,lon = self.get_coords(owner,address1,address2,country)
+            
+        
         this_company = {'owner' : owner, 'ownerid': ownerid, 'responsible' : responsible,
                         'address1' : address1, 'address2' : address2, 'country' : country,
                         'phone' : phone, 'created' : created, 'changed' : changed, 'inetnum' : inetnum,
                         'lat' : lat, 'lon' : lon, 'i1_lat': i1_lat, 'i1_lon' : i1_lon }
         #print ("OWNER IS " + thiscompany["owner"])
         
-        #use nominatim to find coordinates
+        
         
         
 
@@ -161,28 +169,31 @@ class As:
     
     def get_coords(self,o,a1,a2,c):
         try:
+            print("os ",o,"a1 ",a1,"a2 ",a2,"c ",c)
             location = None
             address = ""
             
             address = a2 + " " + c
             location = self.geolocator.geocode(address)
-            
+            print ("Address is ",address,"Location is ",location)
+            print ("lat is ", location.latitude)
+            print ("lon is ", location.longitude)
             if location == None:
                 address = a2
-                location = geolocator.geocode(address)
+                location = self.geolocator.geocode(address)
                 
             if location == None:
                 address = a1 + " " + c
-                location = geolocator.geocode(address)
+                location = self.geolocator.geocode(address)
                 
     
             if location == None:
                 address = a1 + " " + a2 + " " + c
-                location = geolocator.geocode(address)
+                location = self.geolocator.geocode(address)
                
             if location == None:
-                address= o+" " + c 
-                location = geolocator.geocode(address)
+                address= o + " " + c 
+                location = self.geolocator.geocode(address)
                 
             if location == None:
                 raise TypeError

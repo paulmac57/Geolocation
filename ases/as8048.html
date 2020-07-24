@@ -33,7 +33,7 @@
     <script>
       // initialize Leaflet
 
-      var map = L.map('mapid').setView([10.506098, -66.9146017], 7);
+      var map = L.map('mapid').setView([10.488, -66.8792], 6);
       L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
       maxZoom: 18,
@@ -49,12 +49,72 @@
 
       // show AS on the map
 
-      var circle = L.circle([10.506098, -66.9146017], { 
+      var circle = L.circle([10.488, -66.8792], { 
         color: 'red',
         fillColor: '#f03',
         fillOpacity: 0.5,
         radius: 50000
         }).addTo(map);
+      var circle1 = L.circle([7.7669,-72.225], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle1.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.199.96.0/19 ").openPopup();
+
+      var circle2 = L.circle([7.8878,-67.4724], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle2.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.198.0.0/19 ").openPopup();
+
+      var circle3 = L.circle([8.1292,-63.5409], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle3.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.202.112.0/22 ").openPopup();
+
+      var circle4 = L.circle([8.3512,-62.641], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle4.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.200.96.0/19 ").openPopup();
+
+      var circle5 = L.circle([8.5897,-71.1561], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle5.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />186.95.96.0/19 ").openPopup();
+
+      var circle6 = L.circle([8.6226,-70.2075], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle6.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />186.93.96.0/19 ").openPopup();
+
+      var circle7 = L.circle([9.5814,-69.2385], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle7.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />186.95.160.0/19 ").openPopup();
+
+      var circle8 = L.circle([9.6612,-68.5827], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle8.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.199.192.0/19 ").openPopup();
+
+      var circle9 = L.circle([9.7457,-63.1832], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle9.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.200.64.0/19 ").openPopup();
+
+      var circle10 = L.circle([10.0647,-69.357], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle10.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.200.160.0/19 ").openPopup();
+
+      var circle11 = L.circle([10.1363,-64.6862], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle11.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.201.96.0/19 ").openPopup();
+
+      var circle12 = L.circle([10.162,-68.0076], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle12.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.199.224.0/19 ").openPopup();
+
+      var circle13 = L.circle([10.2354,-67.5911], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle13.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.201.32.0/19 ").openPopup();
+
+      var circle14 = L.circle([10.256,-68.0165], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle14.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />186.95.224.0/19 ").openPopup();
+
+      var circle15 = L.circle([10.3991,-71.4521], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle15.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.198.96.0/19 ").openPopup();
+
+      var circle16 = L.circle([10.488,-66.8792], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle16.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.202.0.0/20 ").openPopup();
+
+      var circle17 = L.circle([10.6652,-63.2539], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle17.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.201.160.0/19 ").openPopup();
+
+      var circle18 = L.circle([10.6666,-71.6124], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle18.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.199.32.0/19 ").openPopup();
+
+      var circle19 = L.circle([11.4045,-69.6734], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle19.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />190.201.64.0/19 ").openPopup();
+
+      var circle20 = L.circle([25.7743,-80.1937], { color: 'green', fillColor: '#00ff4d', fillOpacity: 0.5, radius: 20000 }).addTo(map);
+      circle20.bindPopup("<b>AS8048</b><br />BANCO EXTERIOR<br />190.202.108.0/22 ").openPopup();
+
       // show the area of operation of the AS on the map
       var polygon = L.polygon([
         [7.7669,-72.225],
@@ -78,7 +138,7 @@
         [11.4045,-69.6734],
         [25.7743,-80.1937],
         ]).addTo(map);
-      polygon.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br />Area of Operation");
+      polygon.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela<br /186.88.0.0<br />Area of Operation");
       circle.bindPopup("<b>AS8048</b><br />CANTV Servicios, Venezuela ").openPopup();
 
     </script>

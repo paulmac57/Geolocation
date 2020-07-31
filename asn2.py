@@ -8,44 +8,31 @@ import json
 import time
 import sys
 from geopy.geocoders import Nominatim
+import mysql.connector
 
 class As:
-    def __init__(self, asnumber,test):
+    def __init__(self, asnumber):
         self.name = asnumber
         self.handler = ipinfo.getHandler(access_token='5887e8b74e7139')
         self.geolocator = Nominatim(user_agent="aswindow")
         self.url_base = 'http://ipinfo.io/'
         self.as_base = 'AS'
         self.asn = self.as_base + str(self.name)
-        self.test = test
         
         print ("this is the asn "+ self.asn)
 
-        if self.test:
-            #======== or work with static file during tests =====
-            self.myfile = open('html/doc.html', 'r')
-            self.html_doc = self.myfile.read()
+        if self.as_exists(asnumber):
+            print ("asNumber exists in database")
+            self.get_info_from_db()
+            
         else:
-            #======== download live data=========
-            filename = 'html/'+self.asn.lower()+'_doc.html'
-            output = open(filename, 'wb')
-            page = requests.get(self.url_base+self.asn)
-            self.html_doc = page.content
-            output.write(self.html_doc)
-        self.soup = BeautifulSoup(self.html_doc, 'html.parser')
-        
-        try:
-            # Speed of connection
-            _data =  self.soup.find_all("div", attrs={"class": "media-body mt-n1"})
-            self.speed = _data[0].h5.get_text()
-            #print ("SPEED is "+str(self.speed))
-            self.download = _data[1].h5.get_text()
-            #print ("DOWNLOAD is "+self.download)
-            self.upload = _data[2].h5.get_text()
-            #print ("UPLOAD is "+self.upload)
-        except IndexError:
-            print (self.asn+" ... Are you sure you typed a correct AS number ?")
-            sys.exit(1)  
+            print ("asNumber does not exist in database")
+            self.get_info_from_ipinfo()
+            
+            
+        #except IndexError:
+            #print (self.asn+" ... Are you sure you typed a correct AS number ?")
+            #sys.exit(1)  
 
     class d():
         # used by test
@@ -53,6 +40,71 @@ class As:
             #print ('ips is ' + ips)
             self.latitude= thedict[ips]['lat']
             self.longitude= thedict[ips]['lon']
+
+    def as_exists(self, asnumber):
+        
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM ases WHERE id = %s",(asnumber,))
+
+        results = cursor.fetchone()  
+        print ("RESULTS ARE ", results)
+        
+        if results == None:
+            exists =False
+        else:
+            exists = True
+
+        return exists
+
+    def org_exists(self, owner, address1, address2):
+
+        
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM asorganisations WHERE owner = %s AND address1 = %s AND address2 = %s",(owner,address1,address2,))
+
+        results = cursor.fetchone() 
+        print ("RESULTS from DB are ",results) 
+        if results == None:
+            exists =False
+            r = None
+        else:
+            exists = True
+            r = results[0]
+
+        return r, exists
+        
+    def inetnum_exists(self, asnumber):
+        
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        cursor.execute("SELECT id FROM inetnums WHERE inetnum = %s",(self.inetnum,))
+
+        results = cursor.fetchone()  
+        print ("INETNUM RESULTS ARE ", results)
+        
+        if results == None:
+            exists =False
+        else:
+            exists = True
+
+        return exists
     
     def substring_after(self,s, delim):
         return s.partition(delim)[2]
@@ -61,13 +113,23 @@ class As:
     def find_2nd(self,string, substring):
         return string.partition(substring, string.partition(substring) + 1)
 
-    def get_company_info(self):
-       
-        
-        company = self.soup.find(id='whois')
+
+
+    def get_info_from_ipinfo(self):
+
+        #======== download live data=========
+        filename = 'html/'+self.asn.lower()+'_doc.html'
+        output = open(filename, 'wb')
+        page = requests.get(self.url_base+self.asn)
+        html_doc = page.content
+        output.write(html_doc)
+        soup = BeautifulSoup(html_doc, 'html.parser')
+    
+        company = soup.find(id='whois')
         #print ("COMPANY IS ",company)
         info = company.contents[3].pre.contents[0]
 
+        
         # TODO: it looks like different RIR's have different field names
         # so might be worth creating templates for each one instead of using if statements.
 
@@ -76,21 +138,29 @@ class As:
             owner = self.substring_after(info,'ASName:').split('\n')[0].strip()
         if owner == "":
             owner = self.substring_after(info,'descr:').split('\n')[0].strip()
-
+        if owner == "":
+            owner = self.substring_after(info,'Orgname:').split('\n')[0].strip()
+        
+        self.owner = owner
 
         ownerid  = self.substring_after(info,'ownerid:').split('\n')[0].strip()
         if ownerid == "":
             ownerid = self.substring_after(info,'OrgID:').split('\n')[0].strip()
+        self.ownerid = ownerid
+
         responsible = self.substring_after(info,'responsible:').split('\n')[0].strip()
         if responsible == "":
             responsible = self.substring_after(info,'person:').split('\n')[0].strip()
-        
+        if responsible == "":
+            responsible = self.substring_after(info,'FirstName:').split('\n')[0].strip()+self.substring_after(info,'LastName:').split('\n')[0].strip()
+        self.responsible = responsible
         address1 = self.substring_after(info,'address1:').split('\n')[0].strip()
         address2 = self.substring_after(info,'address2:').split('\n')[0].strip()
         # if no address1 and address2 info then try just Street
         if address1 == "":
             address1 = info.partition("Street:")[2].split('\n')[0].strip()
             address2 = info.partition("Street:")[2].partition("Street:")[2].split('\n')[0].strip()
+        
         if info.partition("City:")[2].split('\n')[0].strip() != "":
                 address2 = address2 + " " + info.partition("City:")[2].split('\n')[0].strip()
         if info.partition("State\Prov:")[2].split('\n')[0].strip() != "":
@@ -99,18 +169,31 @@ class As:
         if address1 == "":
             address1 = info.partition("address:")[2].split('\n')[0].strip()
             address2 = info.partition("address:")[2].partition("address:")[2].split('\n')[0].strip()
+        self.address1 = address1
+        self.address2 = address2
         
         country  = self.substring_after(info,'country:').split('\n')[0].strip()
         if country == "":
             country  = self.substring_after(info,'Country:').split('\n')[0].strip()
+        self.country = country
+        
+        
+        
         phone    = self.substring_after(info,'phone:').split('\n')[0].strip()
+        self.phone = phone
         created  = self.substring_after(info,'created:').split('\n')[0].strip()
         if created == "":
             created  = self.substring_after(info,'RegDate:').split('\n')[0].strip()
-
+        self.created = created
         changed  = self.substring_after(info,'changed:').split('\n')[0].strip()
         if changed == "":
             changed  = self.substring_after(info,'Updated:').split('\n')[0].strip()
+        self.changed = changed
+        
+        self.region = self.substring_after(info,'Source:').split('\n')[0].strip()
+        if self.region == "":
+            self.region = self.get_region(country)
+
         inetnum  = self.substring_after(info,'inetnum:').split('\n')[0].strip()
         
         
@@ -138,6 +221,7 @@ class As:
             inetnum = i1+'.'+i2+'.'+i3+'.'+i4
             #print ("INETNUM IS ", inetnum)
             coord = self.handler.getDetails(inetnum) # get coords from ipinfo
+            self.inetnum = inetnum
             # TODO: Note Not Currently in use
             i1_lat = 0
             i1_lat = float(coord.latitude)
@@ -156,19 +240,133 @@ class As:
         #if ipinfo didnt fine location then use nominatim to find company lat and lon coordinates
         #if lat == 0.00:
         lat,lon = self.get_coords(owner,address1,address2,country)
-            
-        
+
+        self.lat = lat
+        self.lon = lon  
+
+        # Speed of connection
+        _data =  soup.find_all("div", attrs={"class": "media-body mt-n1"})
+        self.speed = _data[0].h5.get_text()
+        #print ("SPEED is "+str(self.speed))
+        self.download = _data[1].h5.get_text()
+        #print ("DOWNLOAD is "+self.download)
+        self.upload = _data[2].h5.get_text()
+        #print ("UPLOAD is "+self.upload) 
+        '''
         this_company = {'owner' : owner, 'ownerid': ownerid, 'responsible' : responsible,
                         'address1' : address1, 'address2' : address2, 'country' : country,
                         'phone' : phone, 'created' : created, 'changed' : changed, 'inetnum' : inetnum,
                         'lat' : lat, 'lon' : lon, 'i1_lat': i1_lat, 'i1_lon' : i1_lon }
+        '''
         #print ("OWNER IS " + thiscompany["owner"])
-        
-        
-        
-        
 
-        return this_company
+        # write all Data to local Database for easier retrieval next time
+        
+        asorg_id, org_exist = self.org_exists(self.owner, self.address1, self.address2)
+        if not org_exist:
+            asorg_id = self.add_org_to_db()
+        print ("ASORG_ID ",asorg_id)
+        as_exist = self.as_exists(self.name)
+        if not as_exist:
+            self.add_as_to_db(self.name,asorg_id)
+        inetnum_exist = self.inetnum_exists(self.inetnum)
+        if not inetnum_exist:
+            self.add_inetnums_to_db(asorg_id)
+
+            #add_prefixes_to_db(asorg_id)
+
+        return #this_company
+
+    def get_region(self,c):
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        print ("AS IS ",self.name)
+        cursor.execute("SELECT region FROM ctor WHERE code = %s",(c,))
+
+        region = cursor.fetchone()  
+        # results[0] = asnumber, results[1] = org-id
+        print ("REGION Results are ", region)
+        r = region[0]
+        return r
+
+
+    def get_info_from_db(self):
+    
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        print ("AS IS ",self.name)
+        cursor.execute("SELECT * FROM ases WHERE id = %s",(self.name,))
+
+        results = cursor.fetchone()  
+        # results[0] = asnumber, results[1] = org-id
+        print ("Results are ", results)
+
+        return 
+
+
+    def add_org_to_db(self):
+
+        mydb = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        passwd="brindle7",
+        database="asgeo"
+    )
+
+
+
+        cursor = mydb.cursor()
+        sql = "INSERT INTO asorganisations (owner, ownerid, responsible, address1, address2, country_code, region, phone, created,changed, lat,lon) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = (self.owner, self.ownerid,self.responsible,self.address1, self.address2, self.country, self.region, self.phone, self.created, self.changed,self.lat,self.lon)
+        cursor.execute(sql,val)
+        print(cursor.rowcount," ", self.owner, " !record inserted.")
+        mydb.commit()
+        sql = "SELECT id FROM asorganisations WHERE owner = '" + self.owner + "' AND address1 = '"+ self.address1+"'"
+        print ("SQL is ",sql)
+        cursor.execute(sql)
+        id = cursor.fetchone()
+        print ( "ID is ",id)
+        id = id[0]
+        return id
+
+    def add_as_to_db(self,name,org_id):
+
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        sql = "INSERT INTO ases(id, asorg_id,region ) VALUES (%s, %s, %s)"
+        val = (name, org_id, self.region, )
+        cursor.execute(sql,val)
+
+        mydb.commit()
+    
+    def add_inetnums_to_db(self,org_id):
+        mydb = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            passwd="brindle7",
+            database="asgeo"
+            )
+        cursor = mydb.cursor()
+        sql = "INSERT INTO inetnums(inetnum,owner,region, lat, lon ) VALUES (%s, %s, %s, %s, %s)"
+        val = (self.inetnum, org_id , self.region, self.lat, self.lon )
+        cursor.execute(sql,val)
+
+        mydb.commit()
     
     def get_coords(self,o,a1,a2,c):
         try:
@@ -305,13 +503,16 @@ class As:
     def get_related_networks(self):
         #TODO: Do We need this ASes related networks , frtom ipinfo.io
         pass
+    
+
+
 if __name__ == "__main__":
     os.chdir('/home/paul/Documents/geolocation')
     ASN = 8048
     result = {}
-    thisas = As(ASN,True)
-    print (thisas.get_company_info())
-    print (thisas.get_ipinfo())
+    thisas = As(ASN)
+    #print (thisas.get_company_info())
+    #print (thisas.get_ipinfo())
     
     #ipinfo=thisas.get_ipinfo()
     '''

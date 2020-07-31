@@ -149,6 +149,7 @@ class show_as_info(framework.Framework):
         ascompany = thisas.get_company_info()
             
         print(ascompany)
+        time.sleep(10)
 
         # Start writing the HTML FILE >>>>>
 

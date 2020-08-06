@@ -202,6 +202,7 @@ class As:
 
             info1 = info.split("inetnum:")
             print (info1)
+            ############################### GET all the INETNUMS FOR THIS AS #####
 
             for i in range(num_inums+1):
 
@@ -248,14 +249,15 @@ class As:
         # TODO: by rights the inets are owned by the company not the AS so a new owner class should be set up
         self.inets = inets  
                 
-
+        print ("INETS ARE  ", inets)
+        #time.sleep(10)
         #print ("INFO IS "+ info)
         #lat = i1_lat
         #lon = i1_lon
 
         
         
-        #if ipinfo didnt fine location then use nominatim to find company lat and lon coordinates
+        #if ipinfo didnt find location then use nominatim to find company lat and lon coordinates
         #if lat == 0.00:
         lat,lon = self.get_coords(owner,address1,address2,country)
 
@@ -278,7 +280,7 @@ class As:
         '''
         #print ("OWNER IS " + thiscompany["owner"])
 
-        # write all Data to local Database for easier retrieval next time
+        ####### Write all Data to local Database for easier retrieval next time
         
         asorg_id, org_exist = self.org_exists(self.owner, self.address1, self.address2)
         if not org_exist:
@@ -287,13 +289,14 @@ class As:
         as_exist = self.as_exists(self.name)
         if not as_exist:
             self.add_as_to_db(self.name,asorg_id)
+        inet = {}
         for i in range(num_inums +1):
             if i != 0:
                 print ("INETNUM is ###", inetnum[i])
                 inetnum_exist = self.inetnum_exists(inetnum[i]+"/"+cidr[i])
                 if not inetnum_exist:
                     self.add_inetnums_to_db(inetnum[i],cidr[i],asorg_id, i1_lat[i],i1_lon[i])
-
+                
         # ########### END OF GETTING ALL THE COMPANY INFO ABOUT THE AS #########
         # ########### NOW GET ALL THE PREFIXES ###############################
         #   
@@ -344,6 +347,7 @@ class As:
 
                 # TODO : Get region of ip prefix
                 region = ""
+                # WRITE PREFIXES TO DATABASE
                 self.add_prefixes_to_db(subnet,ip_company,lat,lon,self.name,region, cidr)
         self.prefixes = prefixs
 
@@ -363,10 +367,11 @@ class As:
             upstream[asn] = name
             #print (upstream)
             # upstream[upstreams[i].a.get_text()]= upstreams[i].p.get_text()
+            # WRITE DATA TO DATABASE
             self.add_upstreams_to_db(asn,name,self.name)
             up[asn] = {}
-            up[asn]['company'] = name
-            up[asn]['c_asn'] = self.name
+            up[asn] = name
+            
 
         self.upstreams = up 
         
@@ -385,6 +390,7 @@ class As:
             name = downstreams[i].p.get_text()
             downstream[asn] = name
 
+            # WRITE DATA TO DATABASE
             self.add_downstreams_to_db(asn,name,self.name)
             down[asn] = {}
             down[asn]['company'] = name
@@ -393,7 +399,7 @@ class As:
         self.downstreams = down
 
         print ("UPSTREAMS ARE ",up," DOWNSTREAMS ARE ", down)
-        time.sleep(10)
+        #time.sleep(10)
         
         
 
@@ -476,11 +482,105 @@ class As:
         print ("AS IS ",self.name)
         cursor.execute("SELECT * FROM ases WHERE id = %s",(self.name,))
 
-        results = cursor.fetchone()  
+        as_info = cursor.fetchone()  
         # results[0] = asnumber, results[1] = org-id
-        print ("Results are ", results)
+        print ("Results are ", as_info)
+        
+        self.as_region = as_info [2]
+        org = as_info[1]
+        cursor.execute("SELECT * FROM asorganisations WHERE id = %s",(org,))
+        as_org = cursor.fetchone() 
+        self.owner = as_org[1]
+        self.ownerid = as_org[2]
+        self.responsible = as_org[3]
+        self.address1 = as_org[4]
+        self.address2 = as_org[5]
+        self.country = as_org[6]
+        self.owner_region = as_org[7]
+        self.phone = as_org[8]
+        self.created = as_org[9]
+        self.changed = as_org[10]
+        self.lat = as_org[11]
+        self.lon = as_org[12]
 
+        cursor.execute("SELECT prefix,lat,lon FROM inetnums WHERE owner = %s",(org,))
+        inetnums = cursor.fetchall() 
+        #print (inetnums,len(inetnums))
+        inums_length = len(inetnums)
+        inets = {}
+        if inums_length > 0:
+            for inetnum in range(inums_length):
+                print (inetnums[inetnum])
+                ip = inetnums[inetnum][0]
+                lat = inetnums[inetnum][1]
+                lon = inetnums[inetnum][2]         
+                inets[ip] = {}
+                inets[ip][lat] = lon
+        '''else:
+            i1_lat[i] = 0
+            i1_lon[i] = 0
+        '''
+        
+        self.inets = inets
+        #print (inets)
+
+        cursor.execute("SELECT subnet, company,region,lat, lon, as_id, prefix FROM prefixes WHERE as_id = %s",(self.name,))
+        prefixs = cursor.fetchall()  
+        #print ("PREFIXS BEFORe ",prefixs)   
+        
+        #print ("Length of prefixs ",len(prefixs))
+        prefixs_length = len(prefixs)
+        prefixes = {}
+        if prefixs_length > 0:
+            for prefix in range(prefixs_length):
+                print (prefixs[prefix])
+                subnet = prefixs[prefix][0]
+                company = prefixs[prefix][1]
+                region = prefixs[prefix][2]
+                lat = prefixs[prefix][3]   
+                lon = prefixs[prefix][4]  
+                cidr = prefixs[prefix][5]   
+                ips = subnet+"/"+str(cidr)     
+                prefixes[ips] = {}
+                prefixes[ips]['company'] = company
+                prefixes[ips]['lat'] = lat
+                prefixes[ips]['lon'] = lon
+        self.prefixes = prefixes
+        #print (prefixes)
+
+        cursor.execute("SELECT asn, company FROM upstreams WHERE c_asn = %s",(self.name,))
+        up = cursor.fetchall() 
+
+        up_length = len(up)
+        upstreams = {}
+        if up_length > 0:
+            for upstream in range(up_length):
+                print (up[upstream])
+                up_asn = up[upstream][0]
+                company = up[upstream][1]
+                upstreams[up_asn] = {}
+                upstreams[up_asn] = company
+        self.upstreams = upstreams
+
+        print ("UPSTREAMS ", upstreams)
+
+        cursor.execute("SELECT asn, company FROM downstreams WHERE c_asn = %s",(self.name,))
+        down = cursor.fetchall() 
+
+        down_length = len(down)
+        downstreams = {}
+        if down_length > 0:
+            for downstream in range(down_length):
+                print (down[downstream])
+                down_asn = down[downstream][0]
+                company = down[downstream][1]
+                downstreams[down_asn] = {}
+                downstreams[down_asn] = company
+        self.downstreams = downstreams
+
+        print ("downSTREAMS ", downstreams)
         return 
+    
 
 
     def add_org_to_db(self):

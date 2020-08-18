@@ -541,15 +541,13 @@ class As:
         if prefixs_length > 0:
             for prefix in range(prefixs_length):
                 #print (prefixs[prefix])
-                #time.sleep(10)
                 subnet = prefixs[prefix][0]
                 company = prefixs[prefix][1]
                 region = prefixs[prefix][2]
                 lat = prefixs[prefix][3]   
                 lon = prefixs[prefix][4]  
-                cidr = prefixs[prefix][6]   
-                ips = subnet+"/"+str(cidr)   
-                 
+                cidr = prefixs[prefix][5]   
+                ips = subnet+"/"+str(cidr)     
                 prefixes[ips] = {}
                 prefixes[ips]['company'] = company
                 prefixes[ips]['region'] = region
@@ -557,8 +555,8 @@ class As:
                 prefixes[ips]['lon'] = lon
         self.prefs = prefixes
         
-        #print (self.prefs)
-        #time.sleep(10)
+        print (self.prefs)
+        time.sleep(10)
         cursor.execute("SELECT asn, company FROM upstreams WHERE c_asn = %s",(self.name,))
         up = cursor.fetchall() 
 

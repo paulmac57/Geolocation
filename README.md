@@ -1,12 +1,12 @@
 # GEOLOCATION
 
-uses Nominatum to locate physical addresses
-use ipinfo.io to locate Ip addresses
+uses Nominatum to locate AS Organisation physical addresses (Opensource)
+uses ipinfo.io to locate Ip addresses
 
-To Run: Python aswindow.py <br />
+To Run: Python aswindow2.py <br />
 creates a HTMl file (asnumber.html) in ases folder which must be copied to webserver to display map. <br />
 <br />
-uses asn.py <br />
+uses asn4.py <br />
 AS Class API <br />
   As(asn_number, test) <br />
   <br />
